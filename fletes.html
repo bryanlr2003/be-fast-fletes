@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Fletes</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #0073e6;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            position: relative;
+        }
+        .login, .panel {
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            transition: opacity 0.5s ease;
+        }
+        .login {
+            max-width: 450px;
+            text-align: center;
+        }
+        .panel {
+            max-width: 800px;
+        }
+        h1, h2, h3 {
+            text-align: center;
+        }
+        input[type="text"], input[type="password"], input[type="email"], select, textarea, input[type="date"], input[type="number"], input[type="month"] {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            background-color: #005bb5;
+            transform: scale(1.05);
+        }
+        button::after {
+            content: "";
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.5s ease;
+        }
+        button:active::after {
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0.5s ease;
+        }
+        .link-button {
+            display: block;
+            width: 100%;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .link-button:hover {
+            background-color: #005bb5;
+            transform: scale(1.05);
+        }
+        .panel-nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #0073e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .panel-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .table-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0073e6;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .hidden {
+            display: none;
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+        }
+        .visible {
+            opacity: 1;
+            visibility: visible;
+            height: auto;
+        }
+        .img-responsive {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto 20px;
+        }
+        .map-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .map-container iframe {
+            border: 0;
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+        }
+        .vehicle-image, .driver-image {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .vehicle-image img, .driver-image img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+        }
+        .driver-info {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        .spinner {
+            border: 8px solid #f4f4f4;
+            border-top: 8px solid #0073e6;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .card-details {
+            display: none;
+        }
+        .resumen-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .resumen {
+            max-width: 60%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gestión de Fletes</h1>
+    </header>
+    <div class="container">
+        <!-- Login -->
+        <div class="login" id="login">
+            <img src="C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/logoFletes.png" alt="Logo Fletes" class="img-responsive">
+            <h2>Iniciar Sesión</h2>
+            <label for="userType">Tipo de Usuario:</label>
+            <select id="userType">
+                <option value="cliente">Cliente</option>
+                <option value="fletero">Fletero</option>
+            </select>
+            <label for="username">Usuario:</label>
+            <input type="text" id="username" placeholder="Usuario">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">Ingresar</button>
+            <a class="link-button" onclick="mostrarRegistro()">Registrarse como Cliente</a>
+        </div>
+
+        <!-- Registro -->
+        <div class="login hidden" id="register">
+            <h2>Registro de Cliente</h2>
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" placeholder="Nombre">
+            <label for="apellidos">Apellidos:</label>
+            <input type="text" id="apellidos" placeholder="Apellidos">
+            <label for="ubicacion">Ubicación:</label>
+            <select id="ubicacion">
+                <!-- Lista de ubicaciones -->
+                <option value="Zona 1 de Huehuetenango">Zona 1 de Huehuetenango</option>
+                <option value="Zona 2 de Huehuetenango">Zona 2 de Huehuetenango</option>
+                <option value="Zona 3 de Huehuetenango">Zona 3 de Huehuetenango</option>
+                <option value="Zona 4 de Huehuetenango">Zona 4 de Huehuetenango</option>
+                <option value="Zona 5 de Huehuetenango">Zona 5 de Huehuetenango</option>
+                <option value="Zona 6 de Huehuetenango">Zona 6 de Huehuetenango</option>
+                <option value="Zona 7 de Huehuetenango">Zona 7 de Huehuetenango</option>
+                <option value="Zona 8 de Huehuetenango">Zona 8 de Huehuetenango</option>
+                <option value="Zona 9 de Huehuetenango">Zona 9 de Huehuetenango</option>
+                <option value="Zona 10 de Huehuetenango">Zona 10 de Huehuetenango</option>
+                <option value="Zona 11 de Huehuetenango">Zona 11 de Huehuetenango</option>
+                <option value="Zona 12 de Huehuetenango">Zona 12 de Huehuetenango</option>
+                <option value="Chiantla">Chiantla</option>
+                <option value="Aguacatán">Aguacatán</option>
+                <option value="Malacatancito">Malacatancito</option>
+                <option value="Santa Bárbara">Santa Bárbara</option>
+                <option value="San Sebastián">San Sebastián</option>
+                <option value="San Juan Atitlán">San Juan Atitlán</option>
+                <option value="San Rafael Pétzal">San Rafael Pétzal</option>
+                <option value="San Gaspar Ixchil">San Gaspar Ixchil</option>
+                <option value="Colotenango">Colotenango</option>
+                <option value="Todos Santos Cuchumatán">Todos Santos Cuchumatán</option>
+                <option value="San Ildefonso Ixtahuacán">San Ildefonso Ixtahuacán</option>
+            </select>
+            <label for="register-username">Usuario:</label>
+            <input type="text" id="register-username" placeholder="Usuario">
+            <label for="register-password">Contraseña:</label>
+            <input type="password" id="register-password" placeholder="Contraseña">
+            <label for="email">Correo:</label>
+            <input type="email" id="email" placeholder="Correo">
+            <label for="confirm-password">Confirmar Contraseña:</label>
+            <input type="password" id="confirm-password" placeholder="Confirmar Contraseña">
+            <button onclick="register()">Registrarse</button>
+            <a class="link-button" onclick="mostrarLogin()">Iniciar Sesión</a>
+        </div>
+
+        <!-- Menú de Navegación del Cliente -->
+        <div class="panel-nav hidden" id="cliente-nav">
+            <a onclick="mostrarPanel('panel-solicitar-servicio')">Solicitar Servicio</a>
+            <a onclick="mostrarPanel('panel-ver-servicios')">Ver Servicios Completados</a>
+            <a onclick="mostrarPanel('panel-calificar-fletero')">Calificar Fletero</a>
+            <a onclick="logout()">Cerrar Sesión</a>
+        </div>
+
+        <!-- Menú de Navegación del Fletero -->
+        <div class="panel-nav hidden" id="fletero-nav">
+            <a onclick="mostrarPanel('panel-servicios-pendientes')">Servicios Pendientes</a>
+            <a onclick="mostrarPanel('panel-servicios-completados')">Servicios Completados</a>
+            <a onclick="logout()">Cerrar Sesión</a>
+        </div>
+
+        <!-- Panel Cliente: Solicitar Servicio -->
+        <div class="panel hidden" id="panel-solicitar-servicio">
+            <h2>Solicitar Servicio</h2>
+            <div class="map-container">
+                <iframe src="https://maps.google.com/maps?q=8GC4+W4M,+Huehuetenango&z=15&output=embed"></iframe>
+            </div>
+            <label for="tipo-servicio">Tipo de Servicio:</label>
+            <select id="tipo-servicio" onchange="mostrarImagenVehiculo()">
+                <option value="pickup">Pick Up</option>
+                <option value="camion">Camión</option>
+                <option value="furgoneta">Furgoneta</option>
+                <option value="trailer">Tráiler</option>
+                <option value="grua">Grúa</option>
+            </select>
+            <div class="vehicle-image" id="vehicle-image">
+                <img id="vehicle-img" src="" alt="Imagen del vehículo">
+            </div>
+            <label for="ubicacion-inicio">Ubicación de Inicio:</label>
+            <select id="ubicacion-inicio">
+                <!-- Lista de ubicaciones -->
+                <option value="Zona 1 de Huehuetenango">Zona 1 de Huehuetenango</option>
+                <option value="Zona 2 de Huehuetenango">Zona 2 de Huehuetenango</option>
+                <option value="Zona 3 de Huehuetenango">Zona 3 de Huehuetenango</option>
+                <option value="Zona 4 de Huehuetenango">Zona 4 de Huehuetenango</option>
+                <option value="Zona 5 de Huehuetenango">Zona 5 de Huehuetenango</option>
+                <option value="Zona 6 de Huehuetenango">Zona 6 de Huehuetenango</option>
+                <option value="Zona 7 de Huehuetenango">Zona 7 de Huehuetenango</option>
+                <option value="Zona 8 de Huehuetenango">Zona 8 de Huehuetenango</option>
+                <option value="Zona 9 de Huehuetenango">Zona 9 de Huehuetenango</option>
+                <option value="Zona 10 de Huehuetenango">Zona 10 de Huehuetenango</option>
+                <option value="Zona 11 de Huehuetenango">Zona 11 de Huehuetenango</option>
+                <option value="Zona 12 de Huehuetenango">Zona 12 de Huehuetenango</option>
+                <option value="Chiantla">Chiantla</option>
+                <option value="Aguacatán">Aguacatán</option>
+                <option value="Malacatancito">Malacatancito</option>
+                <option value="Santa Bárbara">Santa Bárbara</option>
+                <option value="San Sebastián">San Sebastián</option>
+                <option value="San Juan Atitlán">San Juan Atitlán</option>
+                <option value="San Rafael Pétzal">San Rafael Pétzal</option>
+                <option value="San Gaspar Ixchil">San Gaspar Ixchil</option>
+                <option value="Colotenango">Colotenango</option>
+                <option value="Todos Santos Cuchumatán">Todos Santos Cuchumatán</option>
+                <option value="San Ildefonso Ixtahuacán">San Ildefonso Ixtahuacán</option>
+            </select>
+            <label for="ubicacion-fin">Ubicación de Destino:</label>
+            <select id="ubicacion-fin">
+                <!-- Lista de ubicaciones -->
+                <option value="Zona 1 de Huehuetenango">Zona 1 de Huehuetenango</option>
+                <option value="Zona 2 de Huehuetenango">Zona 2 de Huehuetenango</option>
+                <option value="Zona 3 de Huehuetenango">Zona 3 de Huehuetenango</option>
+                <option value="Zona 4 de Huehuetenango">Zona 4 de Huehuetenango</option>
+                <option value="Zona 5 de Huehuetenango">Zona 5 de Huehuetenango</option>
+                <option value="Zona 6 de Huehuetenango">Zona 6 de Huehuetenango</option>
+                <option value="Zona 7 de Huehuetenango">Zona 7 de Huehuetenango</option>
+                <option value="Zona 8 de Huehuetenango">Zona 8 de Huehuetenango</option>
+                <option value="Zona 9 de Huehuetenango">Zona 9 de Huehuetenango</option>
+                <option value="Zona 10 de Huehuetenango">Zona 10 de Huehuetenango</option>
+                <option value="Zona 11 de Huehuetenango">Zona 11 de Huehuetenango</option>
+                <option value="Zona 12 de Huehuetenango">Zona 12 de Huehuetenango</option>
+                <option value="Chiantla">Chiantla</option>
+                <option value="Aguacatán">Aguacatán</option>
+                <option value="Malacatancito">Malacatancito</option>
+                <option value="Santa Bárbara">Santa Bárbara</option>
+                <option value="San Sebastián">San Sebastián</option>
+                <option value="San Juan Atitlán">San Juan Atitlán</option>
+                <option value="San Rafael Pétzal">San Rafael Pétzal</option>
+                <option value="San Gaspar Ixchil">San Gaspar Ixchil</option>
+                <option value="Colotenango">Colotenango</option>
+                <option value="Todos Santos Cuchumatán">Todos Santos Cuchumatán</option>
+                <option value="San Ildefonso Ixtahuacán">San Ildefonso Ixtahuacán</option>
+            </select>
+            <label for="peso">Peso (en Kg):</label>
+            <input type="text" id="peso" placeholder="Peso (en Kg)">
+            <label for="ayudantes">Número de Ayudantes:</label>
+            <input type="text" id="ayudantes" placeholder="Número de Ayudantes">
+            <label for="fecha-servicio">Fecha de Servicio:</label>
+            <input type="date" id="fecha-servicio">
+            <label for="indicaciones">Indicaciones para el Fletero:</label>
+            <textarea id="indicaciones" placeholder="Indicaciones para el fletero"></textarea>
+            <label for="tipo-carga">Tipo de Carga:</label>
+            <input type="text" id="tipo-carga" placeholder="Tipo de carga">
+            <label for="fletero">Seleccionar Fletero:</label>
+            <select id="fletero" onchange="mostrarImagenFletero()">
+                <option value="juan_perez">Juan Pérez</option>
+                <option value="maria_lopez">María López</option>
+                <option value="carlos_sanchez">Carlos Sánchez</option>
+            </select>
+            <div class="driver-image" id="driver-image">
+                <img id="driver-img" src="" alt="Imagen del fletero">
+            </div>
+            <div class="driver-info" id="driver-info">
+                <p id="driver-name"></p>
+                <p id="driver-vehicle"></p>
+                <p id="driver-experience"></p>
+                <p id="driver-rating"></p>
+            </div>
+            <label for="metodo-pago">Método de Pago:</label>
+            <select id="metodo-pago" onchange="mostrarCamposPago()">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta de Débito o Crédito</option>
+            </select>
+            <div class="card-details" id="card-details">
+                <label for="propietario-tarjeta">Propietario de la Tarjeta:</label>
+                <input type="text" id="propietario-tarjeta" placeholder="Nombre del propietario">
+                <label for="numero-tarjeta">Número de Tarjeta:</label>
+                <input type="text" id="numero-tarjeta" placeholder="Número de tarjeta" maxlength="19" oninput="formatearNumeroTarjeta(this)">
+                <label for="fecha-vencimiento">Fecha de Vencimiento:</label>
+                <input type="month" id="fecha-vencimiento">
+                <label for="cvv">CVV:</label>
+                <input type="number" id="cvv" placeholder="CVV" maxlength="4">
+            </div>
+            <button id="solicitar-btn" onclick="confirmarSolicitud()">Solicitar Servicio</button>
+            <button onclick="abrirWhatsApp()">Contactar Fletero</button>
+            <div id="resultado"></div>
+        </div>
+
+        <!-- Panel Cliente: Ver Servicios Completados -->
+        <div class="panel hidden" id="panel-ver-servicios">
+            <h2>Servicios Completados</h2>
+            <div class="table-container">
+                <h3>Lista de Servicios Completados</h3>
+                <table aria-label="Tabla de Servicios Completados">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Servicio</th>
+                            <th>Nombre del Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Ubicación de Inicio</th>
+                            <th>Ubicación de Destino</th>
+                            <th>Indicaciones</th>
+                            <th>Tipo de Carga</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-servicios-completados-cliente">
+                        <!-- Aquí se añadirán los servicios completados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel Fletero: Servicios Pendientes -->
+        <div class="panel hidden" id="panel-servicios-pendientes">
+            <h2>Servicios Pendientes</h2>
+            <div class="table-container">
+                <h3>Lista de Servicios Pendientes</h3>
+                <table aria-label="Tabla de Servicios Pendientes">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Servicio</th>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-servicios-pendientes">
+                        <!-- Aquí se añadirá un servicio pendiente dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel Fletero: Servicios Completados -->
+        <div class="panel hidden" id="panel-servicios-completados">
+            <h2>Servicios Completados</h2>
+            <div class="table-container">
+                <h3>Lista de Servicios Completados</h3>
+                <table aria-label="Tabla de Servicios Completados">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Servicio</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Ubicación Inicio</th>
+                            <th>Ubicación Fin</th>
+                            <th>Indicaciones</th>
+                            <th>Tipo de Carga</th>
+                            <th>Método de Pago</th>
+                            <th>Comisión</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-servicios-completados-fletero">
+                        <!-- Aquí se añadirán los servicios completados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel Cliente: Calificar Fletero -->
+        <div class="panel hidden" id="panel-calificar-fletero">
+            <h2>Calificar Fletero</h2>
+            <label for="fletero-calificar">Seleccionar Fletero:</label>
+            <select id="fletero-calificar" onchange="mostrarImagenFleteroCalificar()">
+                <option value="juan_perez">Juan Pérez</option>
+                <option value="maria_lopez">María López</option>
+                <option value="carlos_sanchez">Carlos Sánchez</option>
+            </select>
+            <div class="driver-image" id="driver-image-calificar">
+                <img id="driver-img-calificar" src="C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/hombre.jpg" alt="Imagen del fletero">
+            </div>
+            <div class="driver-info" id="driver-info-calificar">
+                <p id="driver-name-calificar">Nombre: Juan Pérez</p>
+                <p id="driver-vehicle-calificar">Vehículo: Todos los vehículos</p>
+                <p id="driver-experience-calificar">Años de Experiencia: 10 años</p>
+                <p id="driver-rating-calificar">Calificación: 4.5</p>
+            </div>
+            <label for="calificacion">Calificación (1 a 5):</label>
+            <input type="text" id="calificacion" placeholder="Calificación">
+            <button onclick="calificarFletero()">Calificar</button>
+            <div id="resultado-calificacion"></div>
+        </div>
+    </div>
+
+    <!-- Spinner de carga -->
+    <div id="loading-spinner" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Simulación de una base de datos de servicios pendientes y completados
+        const serviciosPendientesDB = [
+            { id: 1, servicio: 'pickup - 15 km', fecha: '2024-05-01' }
+        ];
+
+        const serviciosCompletadosClienteDB = [
+            { id: 1, servicio: 'pickup - 5 km', fecha: '2024-05-01', cliente: 'Juan Pérez', telefono: '555-1234', ubicacionInicio: 'Zona 1 de Huehuetenango', ubicacionFin: 'Zona 2 de Huehuetenango', indicaciones: 'Cargar con cuidado', tipoCarga: 'Electrónica' },
+            { id: 2, servicio: 'camion - 10 km', fecha: '2024-05-02', cliente: 'María López', telefono: '555-5678', ubicacionInicio: 'Zona 3 de Huehuetenango', ubicacionFin: 'Zona 4 de Huehuetenango', indicaciones: 'Entrega rápida', tipoCarga: 'Muebles' },
+            { id: 3, servicio: 'furgoneta - 15 km', fecha: '2024-05-03', cliente: 'Carlos Sánchez', telefono: '555-9101', ubicacionInicio: 'Zona 5 de Huehuetenango', ubicacionFin: 'Zona 6 de Huehuetenango', indicaciones: 'Fragil', tipoCarga: 'Vidrio' }
+        ];
+
+        const serviciosCompletadosFleteroDB = [
+            { id: 1, servicio: 'pickup - 5 km', fecha: '2024-05-01', cliente: 'Juan Pérez', ubicacionInicio: 'Zona 1 de Huehuetenango', ubicacionFin: 'Zona 2 de Huehuetenango', indicaciones: 'Cargar con cuidado', tipoCarga: 'Electrónica', metodoPago: 'Efectivo', totalFlete: 100 },
+            { id: 2, servicio: 'camion - 10 km', fecha: '2024-05-02', cliente: 'María López', ubicacionInicio: 'Zona 3 de Huehuetenango', ubicacionFin: 'Zona 4 de Huehuetenango', indicaciones: 'Entrega rápida', tipoCarga: 'Muebles', metodoPago: 'Tarjeta', totalFlete: 150 },
+            { id: 3, servicio: 'furgoneta - 15 km', fecha: '2024-05-03', cliente: 'Carlos Sánchez', ubicacionInicio: 'Zona 5 de Huehuetenango', ubicacionFin: 'Zona 6 de Huehuetenango', indicaciones: 'Fragil', tipoCarga: 'Vidrio', metodoPago: 'Efectivo', totalFlete: 200 }
+        ];
+
+        const fleteros = {
+            juan_perez: {
+                name: 'Juan Pérez',
+                rating: '4.5',
+                vehicle: 'Todos los vehículos',
+                experience: '10 años',
+                image: 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/hombre.jpg'
+            },
+            maria_lopez: {
+                name: 'María López',
+                rating: '4.8',
+                vehicle: 'Todos los vehículos',
+                experience: '8 años',
+                image: 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/mujer.jpg'
+            },
+            carlos_sanchez: {
+                name: 'Carlos Sánchez',
+                rating: '4.7',
+                vehicle: 'Todos los vehículos',
+                experience: '9 años',
+                image: 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/hombre.jpg'
+            }
+        };
+
+        function login() {
+            var userType = document.getElementById('userType').value;
+            document.getElementById('login').classList.add('hidden');
+            if (userType === 'cliente') {
+                document.getElementById('cliente-nav').classList.remove('hidden');
+                document.getElementById('panel-solicitar-servicio').classList.remove('hidden');
+                mostrarImagenVehiculo();
+                mostrarImagenFletero();
+            } else if (userType === 'fletero') {
+                document.getElementById('fletero-nav').classList.remove('hidden');
+                document.getElementById('panel-servicios-pendientes').classList.remove('hidden');
+                cargarServiciosPendientes();
+                cargarServiciosCompletadosFletero();
+            }
+        }
+
+        function logout() {
+            document.getElementById('login').classList.remove('hidden');
+            document.getElementById('cliente-nav').classList.add('hidden');
+            document.getElementById('fletero-nav').classList.add('hidden');
+            document.getElementById('panel-solicitar-servicio').classList.add('hidden');
+            document.getElementById('panel-ver-servicios').classList.add('hidden');
+            document.getElementById('panel-calificar-fletero').classList.add('hidden');
+            document.getElementById('panel-servicios-pendientes').classList.add('hidden');
+            document.getElementById('panel-servicios-completados').classList.add('hidden');
+        }
+
+        function mostrarRegistro() {
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('register').classList.remove('hidden');
+        }
+
+        function mostrarLogin() {
+            document.getElementById('register').classList.add('hidden');
+            document.getElementById('login').classList.remove('hidden');
+        }
+
+        function mostrarPanel(panelId) {
+            var paneles = document.querySelectorAll('.panel');
+            paneles.forEach(function(panel) {
+                panel.classList.add('hidden');
+                panel.classList.remove('visible');
+            });
+            var panel = document.getElementById(panelId);
+            panel.classList.remove('hidden');
+            setTimeout(function() {
+                panel.classList.add('visible');
+            }, 10);  // Pequeño retraso para activar la transición
+            if (panelId === 'panel-ver-servicios') {
+                cargarServiciosCompletadosCliente();
+            }
+            if (panelId === 'panel-calificar-fletero') {
+                mostrarImagenFleteroCalificar();
+            }
+        }
+
+        function abrirWhatsApp() {
+            window.open("https://chat.whatsapp.com/EfTxif6W5viKWkYrABGQ8g", "_blank");
+        }
+
+        function mostrarImagenVehiculo() {
+            const tipoServicio = document.getElementById('tipo-servicio').value;
+            const vehicleImageDiv = document.getElementById('vehicle-image');
+            const vehicleImg = document.getElementById('vehicle-img');
+            let imagePath = '';
+
+            switch(tipoServicio) {
+                case 'pickup':
+                    imagePath = 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/pik up.png';
+                    break;
+                case 'camion':
+                    imagePath = 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/camion.png';
+                    break;
+                case 'furgoneta':
+                    imagePath = 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/furgoneta.png';
+                    break;
+                case 'trailer':
+                    imagePath = 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/trailer.png';
+                    break;
+                case 'grua':
+                    imagePath = 'C:/Users/Bryan Lucas-Recinos/Desktop/PROYECTO BE+FAST/ProyectoFletes HTML/ImagenesFletes/grua.png';
+                    break;
+                default:
+                    imagePath = '';
+            }
+
+            if (imagePath) {
+                vehicleImg.src = imagePath;
+                vehicleImageDiv.classList.remove('hidden');
+            } else {
+                vehicleImageDiv.classList.add('hidden');
+            }
+        }
+
+        function mostrarImagenFletero() {
+            const fletero = document.getElementById('fletero').value;
+            const driverImageDiv = document.getElementById('driver-image');
+            const driverImg = document.getElementById('driver-img');
+            const driverInfo = fleteros[fletero];
+
+            if (driverInfo) {
+                driverImg.src = driverInfo.image;
+                driverImageDiv.classList.remove('hidden');
+                document.getElementById('driver-name').textContent = `Nombre: ${driverInfo.name}`;
+                document.getElementById('driver-vehicle').textContent = `Vehículo: ${driverInfo.vehicle}`;
+                document.getElementById('driver-experience').textContent = `Años de Experiencia: ${driverInfo.experience}`;
+                document.getElementById('driver-rating').textContent = `Calificación: ${driverInfo.rating}`;
+            } else {
+                driverImageDiv.classList.add('hidden');
+                document.getElementById('driver-name').textContent = '';
+                document.getElementById('driver-vehicle').textContent = '';
+                document.getElementById('driver-experience').textContent = '';
+                document.getElementById('driver-rating').textContent = '';
+            }
+        }
+
+        function mostrarImagenFleteroCalificar() {
+            const fletero = document.getElementById('fletero-calificar').value;
+            const driverImageDiv = document.getElementById('driver-image-calificar');
+            const driverImg = document.getElementById('driver-img-calificar');
+            const driverInfo = fleteros[fletero];
+
+            if (driverInfo) {
+                driverImg.src = driverInfo.image;
+                driverImageDiv.classList.remove('hidden');
+                document.getElementById('driver-name-calificar').textContent = `Nombre: ${driverInfo.name}`;
+                document.getElementById('driver-vehicle-calificar').textContent = `Vehículo: ${driverInfo.vehicle}`;
+                document.getElementById('driver-experience-calificar').textContent = `Años de Experiencia: ${driverInfo.experience}`;
+                document.getElementById('driver-rating-calificar').textContent = `Calificación: ${driverInfo.rating}`;
+            } else {
+                driverImageDiv.classList.add('hidden');
+                document.getElementById('driver-name-calificar').textContent = '';
+                document.getElementById('driver-vehicle-calificar').textContent = '';
+                document.getElementById('driver-experience-calificar').textContent = '';
+                document.getElementById('driver-rating-calificar').textContent = '';
+            }
+        }
+
+        function mostrarCamposPago() {
+            const metodoPago = document.getElementById('metodo-pago').value;
+            const cardDetails = document.getElementById('card-details');
+            if (metodoPago === 'tarjeta') {
+                cardDetails.style.display = 'block';
+            } else {
+                cardDetails.style.display = 'none';
+            }
+        }
+
+        function formatearNumeroTarjeta(input) {
+            let value = input.value.replace(/\D/g, '');
+            let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1-');
+            input.value = formattedValue.slice(0, 19); // Limitar a 19 caracteres (16 dígitos + 3 guiones)
+        }
+
+        function validarTarjeta() {
+            const numeroTarjeta = document.getElementById('numero-tarjeta').value.replace(/-/g, '');
+            const fechaVencimiento = document.getElementById('fecha-vencimiento').value;
+            const cvv = document.getElementById('cvv').value;
+
+            const regexNumeroTarjeta = /^[0-9]{16}$/;
+            const regexCVV = /^[0-9]{3,4}$/;
+            const fechaActual = new Date();
+            const fechaTarjeta = new Date(fechaVencimiento);
+
+            if (!regexNumeroTarjeta.test(numeroTarjeta)) {
+                alert('El número de tarjeta debe tener 16 dígitos.');
+                return false;
+            }
+
+            if (fechaTarjeta < fechaActual) {
+                alert('La tarjeta está vencida.');
+                return false;
+            }
+
+            if (!regexCVV.test(cvv)) {
+                alert('El CVV debe tener 3 o 4 dígitos.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function calcularPrecio(tipo, distancia, peso, ayudantes) {
+            let precioBase, factorDistancia, factorPeso, precioPorAyudante;
+
+            switch(tipo) {
+                case 'pickup':
+                    precioBase = 50;
+                    if (distancia <= 5) {
+                        factorDistancia = 0.18;
+                        factorPeso = 0.008;
+                        precioPorAyudante = 50;
+                    } else if (distancia <= 20) {
+                        factorDistancia = 0.165;
+                        factorPeso = 0.009;
+                        precioPorAyudante = 80;
+                    } else {
+                        factorDistancia = 0.15;
+                        factorPeso = 0.01;
+                        precioPorAyudante = 100;
+                    }
+                    break;
+                case 'camion':
+                    precioBase = 65;
+                    factorPeso = 0.006;
+                    if (distancia <= 5) {
+                        factorDistancia = 0.18;
+                        precioPorAyudante = 50;
+                    } else if (distancia <= 20) {
+                        factorDistancia = 0.165;
+                        precioPorAyudante = 80;
+                    } else {
+                        factorDistancia = 0.15;
+                        precioPorAyudante = 100;
+                    }
+                    break;
+                case 'furgoneta':
+                    precioBase = 60;
+                    factorPeso = 0.005;
+                    if (distancia <= 5) {
+                        factorDistancia = 0.18;
+                        precioPorAyudante = 50;
+                    } else if (distancia <= 20) {
+                        factorDistancia = 0.165;
+                        precioPorAyudante = 80;
+                    } else {
+                        factorDistancia = 0.15;
+                        precioPorAyudante = 100;
+                    }
+                    break;
+                case 'trailer':
+                    precioBase = 100;
+                    if (distancia <= 20) {
+                        factorDistancia = 0.20;
+                        factorPeso = 0.15;
+                        precioPorAyudante = 80;
+                    } else if (distancia <= 50) {
+                        factorDistancia = 0.18;
+                        factorPeso = 0.12;
+                        precioPorAyudante = 100;
+                    } else {
+                        factorDistancia = 0.15;
+                        factorPeso = 0.10;
+                        precioPorAyudante = 120;
+                    }
+                    break;
+                case 'grua':
+                    precioBase = 100;
+                    if (distancia <= 20) {
+                        factorDistancia = 0.20;
+                        factorPeso = 0.15;
+                        precioPorAyudante = 80;
+                    } else if (distancia <= 50) {
+                        factorDistancia = 0.18;
+                        factorPeso = 0.12;
+                        precioPorAyudante = 100;
+                    } else {
+                        factorDistancia = 0.15;
+                        factorPeso = 0.10;
+                        precioPorAyudante = 120;
+                    }
+                    break;
+                default:
+                    return 0;
+            }
+
+            const precioFlete = precioBase + ((factorDistancia * distancia) * precioBase) + ((factorPeso * peso) * precioBase);
+            const totalFlete = precioFlete + (ayudantes * precioPorAyudante);
+
+            return {
+                totalFlete: totalFlete.toFixed(2)
+            };
+        }
+
+        function confirmarSolicitud() {
+            const tipo = document.getElementById('tipo-servicio').value;
+            const ubicacionInicio = document.getElementById('ubicacion-inicio').value;
+            const ubicacionFin = document.getElementById('ubicacion-fin').value;
+            const fechaServicio = document.getElementById('fecha-servicio').value;
+            const indicaciones = document.getElementById('indicaciones').value;
+            const tipoCarga = document.getElementById('tipo-carga').value;
+            const distancia = Math.random() * (100 - 1) + 1; // Suponiendo que la distancia se calcula de alguna manera
+            const peso = parseFloat(document.getElementById('peso').value);
+            const ayudantes = parseInt(document.getElementById('ayudantes').value, 10);
+            const fletero = document.getElementById('fletero').value;
+            const metodoPago = document.getElementById('metodo-pago').value;
+
+            if (!fechaServicio) {
+                alert('Por favor, seleccione una fecha para el servicio.');
+                return;
+            }
+
+            if (isNaN(distancia) || isNaN(peso) || isNaN(ayudantes)) {
+                alert('Por favor, ingrese valores numéricos para la distancia, el peso y la cantidad de ayudantes.');
+                return;
+            }
+
+            if (metodoPago === 'tarjeta' && !validarTarjeta()) {
+                return;
+            }
+
+            const precios = calcularPrecio(tipo, distancia, peso, ayudantes);
+
+            if (confirm(`¿Está seguro de que desea realizar el servicio? El total del flete es Q${precios.totalFlete}.`)) {
+                solicitarServicio(tipo, ubicacionInicio, ubicacionFin, fechaServicio, indicaciones, tipoCarga, distancia, peso, ayudantes, fletero, metodoPago, precios.totalFlete);
+            }
+        }
+
+        function solicitarServicio(tipo, ubicacionInicio, ubicacionFin, fechaServicio, indicaciones, tipoCarga, distancia, peso, ayudantes, fletero, metodoPago, totalFlete) {
+            // Mostrar spinner de carga
+            document.getElementById('loading-spinner').classList.remove('hidden');
+
+            setTimeout(function() {
+                const resultadoDiv = document.getElementById('resultado');
+                resultadoDiv.innerHTML = `
+                    <h3>Solicitud Realizada</h3>
+                    <p><strong>Tipo de Servicio:</strong> ${tipo}</p>
+                    <p><strong>Ubicación de Inicio:</strong> ${ubicacionInicio}</p>
+                    <p><strong>Ubicación de Destino:</strong> ${ubicacionFin}</p>
+                    <p><strong>Fecha de Servicio:</strong> ${fechaServicio}</p>
+                    <p><strong>Indicaciones:</strong> ${indicaciones}</p>
+                    <p><strong>Tipo de Carga:</strong> ${tipoCarga}</p>
+                    <p><strong>Distancia:</strong> ${distancia.toFixed(2)} km</p>
+                    <p><strong>Peso:</strong> ${peso} kg</p>
+                    <p><strong>Número de Ayudantes:</strong> ${ayudantes}</p>
+                    <p><strong>Fletero:</strong> ${fletero}</p>
+                    <p><strong>Método de Pago:</strong> ${metodoPago}</p>
+                    <p><strong>Total del Flete:</strong> Q${totalFlete}</p>
+                `;
+
+                // Ocultar spinner de carga
+                document.getElementById('loading-spinner').classList.add('hidden');
+
+                // Agregar el servicio pendiente al panel del fletero
+                const nuevoServicio = {
+                    id: serviciosPendientesDB.length + 1,
+                    servicio: `${tipo} - ${distancia.toFixed(2)} km`,
+                    fecha: fechaServicio,
+                    indicaciones: indicaciones
+                };
+                serviciosPendientesDB.push(nuevoServicio);
+                cargarServiciosPendientes();
+            }, 1000);  // Simular tiempo de carga
+        }
+
+        function calificarFletero() {
+            const fletero = document.getElementById('fletero-calificar').value;
+            const calificacion = parseInt(document.getElementById('calificacion').value, 10);
+
+            if (isNaN(calificacion) || calificacion < 1 || calificacion > 5) {
+                alert('Por favor, ingrese una calificación válida (entre 1 y 5).');
+                return;
+            }
+
+            const resultadoCalificacionDiv = document.getElementById('resultado-calificacion');
+            resultadoCalificacionDiv.innerHTML = `
+                <h3>Calificación Enviada</h3>
+                <p><strong>Fletero:</strong> ${fletero}</p>
+                <p><strong>Calificación:</strong> ${calificacion}</p>
+            `;
+        }
+
+        function completarServicio(servicioId) {
+            alert(`Servicio #${servicioId} completado.`);
+            const servicio = serviciosPendientesDB.find(s => s.id === servicioId);
+            if (servicio) {
+                serviciosCompletadosClienteDB.push(servicio);
+                serviciosCompletadosFleteroDB.push(servicio);
+            }
+            serviciosPendientesDB.splice(servicioId - 1, 1);
+            cargarServiciosPendientes();
+        }
+
+        function cargarServiciosPendientes() {
+            const tablaServiciosPendientes = document.getElementById('tabla-servicios-pendientes');
+            tablaServiciosPendientes.innerHTML = '';
+            serviciosPendientesDB.forEach(servicio => {
+                const fila = `
+                    <tr>
+                        <td>${servicio.id}</td>
+                        <td>${servicio.servicio}</td>
+                        <td>${servicio.fecha}</td>
+                        <td><button onclick="completarServicio(${servicio.id})">Completar</button></td>
+                    </tr>
+                `;
+                tablaServiciosPendientes.insertAdjacentHTML('beforeend', fila);
+            });
+        }
+
+        function cargarServiciosCompletadosCliente() {
+            const tablaServiciosCompletadosCliente = document.getElementById('tabla-servicios-completados-cliente');
+            tablaServiciosCompletadosCliente.innerHTML = '';
+            serviciosCompletadosClienteDB.forEach(servicio => {
+                const fila = `
+                    <tr>
+                        <td>${servicio.id}</td>
+                        <td>${servicio.servicio}</td>
+                        <td>${servicio.cliente}</td>
+                        <td>${servicio.telefono}</td>
+                        <td>${servicio.ubicacionInicio}</td>
+                        <td>${servicio.ubicacionFin}</td>
+                        <td>${servicio.indicaciones}</td>
+                        <td>${servicio.tipoCarga}</td>
+                        <td>${servicio.fecha}</td>
+                    </tr>
+                `;
+                tablaServiciosCompletadosCliente.insertAdjacentHTML('beforeend', fila);
+            });
+        }
+
+        function cargarServiciosCompletadosFletero() {
+            const tablaServiciosCompletadosFletero = document.getElementById('tabla-servicios-completados-fletero');
+            tablaServiciosCompletadosFletero.innerHTML = '';
+            serviciosCompletadosFleteroDB.forEach(servicio => {
+                const comision = (servicio.totalFlete * 0.1).toFixed(2);
+                const fila = `
+                    <tr>
+                        <td>${servicio.id}</td>
+                        <td>${servicio.servicio}</td>
+                        <td>${servicio.fecha}</td>
+                        <td>${servicio.cliente}</td>
+                        <td>${servicio.ubicacionInicio}</td>
+                        <td>${servicio.ubicacionFin}</td>
+                        <td>${servicio.indicaciones}</td>
+                        <td>${servicio.tipoCarga}</td>
+                        <td>${servicio.metodoPago}</td>
+                        <td>Q${comision}</td>
+                    </tr>
+                `;
+                tablaServiciosCompletadosFletero.insertAdjacentHTML('beforeend', fila);
+            });
+        }
+
+        function register() {
+            const nombre = document.getElementById('nombre').value;
+            const apellidos = document.getElementById('apellidos').value;
+            const ubicacion = document.getElementById('ubicacion').value;
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const email = document.getElementById('email').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden.');
+                return;
+            }
+
+            alert(`Registro completado:
+                Nombre: ${nombre}
+                Apellidos: ${apellidos}
+                Ubicación: ${ubicacion}
+                Usuario: ${username}
+                Correo: ${email}`);
+        }
+    </script>
+</body>
+</html>
